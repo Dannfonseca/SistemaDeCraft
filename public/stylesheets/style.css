@@ -1,0 +1,150 @@
+/* Paleta de Cores */
+:root {
+  --primary-color: #0D6EFD;
+  --secondary-color: #6C757D;
+  --background-color: #F8F9FA;
+  --text-color: #212529;
+  --light-color: #FFFFFF;
+}
+
+/* Reset */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+/* Corpo */
+body {
+  font-family: 'Open Sans', sans-serif;
+  background-color: var(--background-color);
+  color: var(--text-color);
+}
+
+/* Navbar */
+.navbar {
+  background-color: var(--primary-color);
+  padding: 10px 15px; /* Ajuste o padding para reduzir o tamanho da navbar */
+  height: auto; /* Remova qualquer altura fixa, se houver */
+  display: flex;
+  justify-content: space-between;
+  align-items: center; /* Para alinhar o conteúdo da navbar verticalmente */
+}
+
+.logo {
+  max-height: 50px; /* Reduz a altura da logo se necessário */
+  width: auto;
+}
+
+.navbar-brand, .nav-link {
+  color: var(--light-color) !important;
+  font-weight: 500;
+}
+
+.nav-link:hover {
+  color: var(--secondary-color) !important;
+}
+
+/* Footer */
+footer {
+  background-color: var(--primary-color);
+  color: var(--light-color);
+  padding: 20px 0;
+  text-align: center;
+  position: fixed;
+  width: 100%;
+  bottom: 0;
+  box-shadow: 0 -4px 6px rgba(0, 0, 0, 0.1);
+}
+
+/* Conteúdo */
+.container {
+  padding-top: 80px;
+  padding-bottom: 60px;
+  max-width: 1200px;
+  margin: auto;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  margin-bottom: 20px;
+  font-weight: 600;
+}
+
+/* Botões */
+.btn-primary {
+  background-color: var(--primary-color);
+  border-color: var(--primary-color);
+  padding: 10px 20px;
+  border-radius: 0.35rem;
+  font-size: 1rem;
+  transition: background-color 0.3s ease;
+}
+
+.btn-primary:hover {
+  background-color: #0B5ED7;
+  border-color: #0A58CA;
+  transform: scale(1.05);
+}
+
+/* Tabelas */
+.table {
+  background-color: var(--light-color);
+  border-collapse: separate;
+  border-spacing: 0 15px;
+}
+
+.table thead {
+  background-color: var(--primary-color);
+  color: var(--light-color);
+  border-radius: 0.35rem;
+}
+
+.table th, .table td {
+  padding: 12px 15px;
+  text-align: left;
+}
+
+.table tbody tr {
+  background-color: #ffffff;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+  border-radius: 0.35rem;
+}
+
+.table tbody tr:hover {
+  background-color: #f1f3f5;
+}
+
+/* Formulários */
+.form-control {
+  border-radius: 0.35rem;
+  border: 1px solid #ced4da;
+  padding: 10px;
+  transition: border-color 0.3s ease;
+}
+
+.form-control:focus {
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25);
+}
+
+/* Responsividade */
+@media (max-width: 768px) {
+  .navbar-brand, .nav-link {
+    font-size: 1rem;
+  }
+  
+  .container {
+    padding-left: 10px;
+    padding-right: 10px;
+  }
+  
+  .btn-primary {
+    width: 100%;
+    margin-bottom: 10px;
+  }
+  
+  .table {
+    font-size: 0.875rem;
+  }
+}
+

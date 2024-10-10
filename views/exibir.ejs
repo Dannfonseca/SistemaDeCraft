@@ -1,0 +1,115 @@
+<% title = 'Exibir Itens'; %>
+
+<h2 class="mt-4 mb-4 text-center">Itens Cadastrados</h2>
+
+<table class="table table-bordered">
+  <thead class="thead-dark">
+    <tr>
+      <th>Nome</th>
+      <th>Tier</th>
+      <th>Profissão</th>
+      <th>Preço NPC</th>
+      <th>Preço Market</th>
+      <th>Ações</th>
+    </tr>
+  </thead>
+  <tbody>
+    <% items.forEach(item => { %>
+      <tr data-item-id="<%= item.id %>">
+        <td><span class="item-name"><%= item.name %></span></td>
+        <td><%= item.tier %></td>
+        <td><%= item.profession %></td>
+        <td><span class="item-npcPrice"><%= item.npcPrice %></span></td>
+        <td><span class="item-marketPrice"><%= item.marketPrice %></span></td>
+        <td>
+          <button class="btn btn-primary edit-button">Editar</button>
+          <button class="btn btn-danger delete-button">Deletar</button>
+        </td>
+      </tr>
+    <% }) %>
+  </tbody>
+</table>
+
+<script>
+  document.querySelectorAll('.edit-button').forEach(button => {
+    button.addEventListener('click', function() {
+      const row = this.closest('tr');
+      const itemId = row.dataset.itemId;
+
+      // Verificar se já está em modo de edição
+      if (row.classList.contains('editing')) return;
+
+      row.classList.add('editing');
+
+      // Substituir spans por inputs
+      const nameCell = row.querySelector('.item-name');
+      const npcPriceCell = row.querySelector('.item-npcPrice');
+      const marketPriceCell = row.querySelector('.item-marketPrice');
+
+      const nameValue = nameCell.textContent;
+      const npcPriceValue = npcPriceCell.textContent;
+      const marketPriceValue = marketPriceCell.textContent;
+
+      nameCell.innerHTML = `<input type="text" class="form-control" value="${nameValue}">`;
+      npcPriceCell.innerHTML = `<input type="number" step="0.01" class="form-control" value="${npcPriceValue}">`;
+      marketPriceCell.innerHTML = `<input type="number" step="0.01" class="form-control" value="${marketPriceValue}">`;
+
+      // Mostrar botão Salvar
+      this.style.display = 'none';
+      const saveButton = document.createElement('button');
+      saveButton.className = 'btn btn-success save-button';
+      saveButton.textContent = 'Salvar';
+      this.parentElement.insertBefore(saveButton, this);
+
+      // Ação do botão Salvar
+      saveButton.addEventListener('click', async function() {
+        const newName = nameCell.querySelector('input').value;
+        const newNpcPrice = npcPriceCell.querySelector('input').value;
+        const newMarketPrice = marketPriceCell.querySelector('input').value;
+
+        // Enviar atualização para o servidor
+        const response = await fetch('/exibir/' + itemId, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            name: newName,
+            npcPrice: parseFloat(newNpcPrice),
+            marketPrice: parseFloat(newMarketPrice),
+          }),
+        });
+
+        if (response.ok) {
+          // Atualizar células
+          nameCell.innerHTML = newName;
+          npcPriceCell.innerHTML = parseFloat(newNpcPrice).toFixed(2);
+          marketPriceCell.innerHTML = parseFloat(newMarketPrice).toFixed(2);
+
+          // Restaurar botões
+          saveButton.remove();
+          button.style.display = 'inline-block';
+          row.classList.remove('editing');
+        } else {
+          alert('Erro ao salvar as alterações.');
+        }
+      });
+    });
+  });
+
+  document.querySelectorAll('.delete-button').forEach(button => {
+    button.addEventListener('click', async function() {
+      const row = this.closest('tr');
+      const itemId = row.dataset.itemId;
+      const confirmed = confirm('Tem certeza que deseja deletar este item?');
+      if (confirmed) {
+        const response = await fetch('/exibir/' + itemId, { method: 'DELETE' });
+        if (response.ok) {
+          row.remove();
+        } else {
+          alert('Erro ao deletar o item.');
+        }
+      }
+    });
+  });
+</script>
+
+

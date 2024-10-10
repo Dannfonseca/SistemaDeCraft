@@ -1,0 +1,180 @@
+<% title = 'Calcular'; %>
+
+<h2 class="mt-4 mb-4 text-center">Calcular</h2>
+
+<div class="card mb-4">
+  <div class="card-body">
+    <div class="form-row">
+      <div class="form-group col-md-6">
+        <label for="filter-tier">Filtrar por Tier:</label>
+        <select id="filter-tier" class="form-control">
+          <option value="">Todos</option>
+          <% for (const key in tiers) { %>
+            <option value="<%= tiers[key] %>">Tier <%= tiers[key] %></option>
+          <% } %>
+        </select>
+      </div>
+      <div class="form-group col-md-6">
+        <label for="filter-profession">Filtrar por Profissão:</label>
+        <select id="filter-profession" class="form-control">
+          <option value="">Todas</option>
+          <% for (const key in professions) { %>
+            <option value="<%= professions[key] %>"><%= professions[key] %></option>
+          <% } %>
+        </select>
+      </div>
+    </div>
+  </div>
+</div>
+
+<table class="table table-bordered">
+  <thead class="thead-dark">
+    <tr>
+      <th>Item</th>
+      <th>Ação</th>
+    </tr>
+  </thead>
+  <tbody id="items-table-body">
+    <!-- As linhas dos itens serão inseridas aqui via JavaScript -->
+  </tbody>
+</table>
+
+<!-- Seção de detalhes do item selecionado -->
+<div id="item-details" style="display: none;">
+  <h3>Detalhes do Item</h3>
+  <p><strong>Item:</strong> <span id="selected-item-name"></span></p>
+  <p><strong>Quantidade:</strong> <button id="decrease-quantity" class="btn btn-sm btn-secondary">-</button> <span id="selected-item-quantity">1</span> <button id="increase-quantity" class="btn btn-sm btn-secondary">+</button></p>
+
+  <table class="table table-bordered">
+    <thead class="thead-light">
+      <tr>
+        <th>Ingrediente</th>
+        <th>Quantidade</th>
+        <th>NPC</th>
+        <th>MKT</th>
+      </tr>
+    </thead>
+    <tbody id="ingredients-table-body">
+      <!-- Ingredientes serão inseridos aqui -->
+    </tbody>
+  </table>
+
+  <p><strong>Total NPC:</strong> <span id="total-npc">0</span></p>
+  <p><strong>Total MKT:</strong> <span id="total-mkt">0</span></p>
+  <p><strong>Lucro/Diferença:</strong> <span id="profit-percent">0%</span></p>
+</div>
+
+<script>
+  let allItems = <%- JSON.stringify(items) %>;
+  const tiers = <%- JSON.stringify(tiers) %>;
+  const professions = <%- JSON.stringify(professions) %>;
+
+  function filterItems() {
+    const tierFilter = document.getElementById('filter-tier').value;
+    const professionFilter = document.getElementById('filter-profession').value;
+    const filteredItems = allItems.filter(item => {
+      let tierMatch = true;
+      let professionMatch = true;
+      if (tierFilter) {
+        tierMatch = item.tier == tierFilter;
+      }
+      if (professionFilter) {
+        professionMatch = item.profession == professionFilter;
+      }
+      return tierMatch && professionMatch;
+    });
+    displayItems(filteredItems);
+  }
+
+  function displayItems(items) {
+    const tbody = document.getElementById('items-table-body');
+    tbody.innerHTML = '';
+    items.forEach(item => {
+      const row = document.createElement('tr');
+      row.dataset.itemId = item.id;
+      row.innerHTML = `
+        <td>${item.name} (Tier ${item.tier})</td>
+        <td><button class="btn btn-primary select-item-button">Selecionar</button></td>
+      `;
+      tbody.appendChild(row);
+    });
+  }
+
+  async function fetchItemDetails(itemId, quantity) {
+    const response = await fetch(`/calcular/detalhes/${itemId}`);
+    const ingredients = await response.json();
+    displayItemDetails(itemId, quantity, ingredients);
+  }
+
+  function displayItemDetails(itemId, quantity, ingredients) {
+    document.getElementById('item-details').style.display = 'block';
+    const selectedItem = allItems.find(item => item.id == itemId);
+    document.getElementById('selected-item-name').textContent = `${selectedItem.name} (Tier ${selectedItem.tier})`;
+    document.getElementById('selected-item-quantity').textContent = quantity;
+
+    const tbody = document.getElementById('ingredients-table-body');
+    tbody.innerHTML = '';
+    let totalNpc = 0;
+    let totalMkt = 0;
+
+    ingredients.forEach(ingredientData => {
+      const ingredient = ingredientData.item;
+      const totalQuantity = ingredientData.quantity * quantity;
+      const npcCost = ingredient.npcPrice * totalQuantity;
+      const mktCost = ingredient.marketPrice * totalQuantity;
+      totalNpc += npcCost;
+      totalMkt += mktCost;
+
+      const row = document.createElement('tr');
+      row.innerHTML = `
+        <td>${ingredient.name}</td>
+        <td>${totalQuantity}</td>
+        <td>${npcCost.toFixed(2)}</td>
+        <td>${mktCost.toFixed(2)}</td>
+      `;
+      tbody.appendChild(row);
+    });
+
+    document.getElementById('total-npc').textContent = totalNpc.toFixed(2);
+    document.getElementById('total-mkt').textContent = totalMkt.toFixed(2);
+
+    const selectedItemTotalNpc = selectedItem.npcPrice * quantity;
+    const selectedItemTotalMkt = selectedItem.marketPrice * quantity;
+
+    const profitPercent = ((selectedItemTotalMkt - totalMkt) / totalMkt) * 100;
+    document.getElementById('profit-percent').textContent = profitPercent.toFixed(2) + '%';
+  }
+
+  document.getElementById('items-table-body').addEventListener('click', function(event) {
+    if (event.target.classList.contains('select-item-button')) {
+      const itemId = event.target.closest('tr').dataset.itemId;
+      const quantity = 1;
+      fetchItemDetails(itemId, quantity);
+
+      // Atualizar quantidade
+      const decreaseButton = document.getElementById('decrease-quantity');
+      const increaseButton = document.getElementById('increase-quantity');
+      let currentQuantity = 1;
+
+      decreaseButton.onclick = () => {
+        if (currentQuantity > 1) {
+          currentQuantity--;
+          document.getElementById('selected-item-quantity').textContent = currentQuantity;
+          fetchItemDetails(itemId, currentQuantity);
+        }
+      };
+
+      increaseButton.onclick = () => {
+        currentQuantity++;
+        document.getElementById('selected-item-quantity').textContent = currentQuantity;
+        fetchItemDetails(itemId, currentQuantity);
+      };
+    }
+  });
+
+  document.getElementById('filter-tier').addEventListener('change', filterItems);
+  document.getElementById('filter-profession').addEventListener('change', filterItems);
+
+  // Inicializar a tabela com todos os itens
+  displayItems(allItems);
+</script>
