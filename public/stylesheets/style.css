@@ -24,21 +24,33 @@ body {
 /* Navbar */
 .navbar {
   background-color: var(--primary-color);
-  padding: 10px 15px; /* Ajuste o padding para reduzir o tamanho da navbar */
-  height: auto; /* Remova qualquer altura fixa, se houver */
+  padding: 5px 10px;
+  height: 50px; /* Define uma altura menor */
   display: flex;
-  justify-content: space-between;
-  align-items: center; /* Para alinhar o conteúdo da navbar verticalmente */
+  justify-content: space-between; /* Mantém a logo e os links nos extremos */
+  align-items: center;
 }
 
-.logo {
-  max-height: 50px; /* Reduz a altura da logo se necessário */
+.navbar .logo {
+  display: flex;
+  align-items: center;
+}
+
+.logo img {
+  max-height: 30px; /* Reduz ainda mais a altura da logo */
   width: auto;
 }
 
+.navbar .nav-links {
+  display: flex;
+  gap: 20px; /* Espaçamento entre os links */
+}
+
 .navbar-brand, .nav-link {
-  color: var(--light-color) !important;
+  color: var(--text-color) !important;
   font-weight: 500;
+  font-size: 1rem; /* Diminui o tamanho do texto */
+  text-decoration: none;
 }
 
 .nav-link:hover {
@@ -49,12 +61,13 @@ body {
 footer {
   background-color: var(--primary-color);
   color: var(--light-color);
-  padding: 20px 0;
+  padding: 10px 0; /* Diminui o padding */
   text-align: center;
+  font-size: 0.8rem; /* Tamanho menor para o texto */
   position: fixed;
   width: 100%;
   bottom: 0;
-  box-shadow: 0 -4px 6px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 -2px 4px rgba(0, 0, 0, 0.1); /* Box shadow mais suave */
 }
 
 /* Conteúdo */
@@ -130,21 +143,20 @@ h1, h2, h3, h4, h5, h6 {
 /* Responsividade */
 @media (max-width: 768px) {
   .navbar-brand, .nav-link {
-    font-size: 1rem;
+    font-size: 0.9rem; /* Ajusta o tamanho para telas pequenas */
   }
-  
+
   .container {
     padding-left: 10px;
     padding-right: 10px;
   }
-  
+
   .btn-primary {
     width: 100%;
     margin-bottom: 10px;
   }
-  
+
   .table {
     font-size: 0.875rem;
   }
 }
-
